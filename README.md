@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The `simpleMongoQuery` package simplifies the process of constructing complex MongoDB queries through an intuitive notation system. It allows developers to create sophisticated queries using a straightforward object-based approach.
+The `simpleMongoQuery` package simplifies the process of constructing complex MongoDB queries through an intuitive notation system. It allows developers to create sophisticated queries using a straightforward object-and-string-based approach.
 
 ## Installation
 
@@ -12,7 +12,7 @@ npm install simpleMongoQuery
 
 ## Query Notation
 
-The `simpleMongoQuery` package interprets a specific query notation within the input object to construct MongoDB queries. Below is a table summarizing the supported notations:
+The `simpleMongoQuery` package interprets a specific query notation within the input object to construct MongoDB queries. Below is a table summarizing the supported string notations:
 
 | Notation                | Description                                                                      |
 | ----------------------- | -------------------------------------------------------------------------------- |
@@ -92,10 +92,11 @@ simpleMongoQuery({
 
 ### Notation Usage: `||` vs `&&` at the Start of a String
 
-In `simpleMongoQuery`, logic operators are evaluated across properties by default, so the placement of `||` and `&&` at the start of a string within a property's value plays a significant role.
+In `simpleMongoQuery`, logic operators are evaluated across properties by default (unless they are nested), so the placement of `||` and `&&` at the start of a string within a property's value plays a significant role.
 
-- **`||` at the Start**: Indicates that conditions for a property are connected to other properties. if only one condition behind an `||` operator for all properties returns true the document will be returned.
+- **`||` at the Start**: Indicates that conditions for a property are connected to other properties. If only one condition behind an `||` operator for all those properties returns true the document will be returned.
 
-- **`&&` at the Start**: Implies that conditions for a property should be evaluated independently. All conditions behind an `&&` must be true to get the document.
+- **`&&` at the Start**: Implies that conditions for a property should be evaluated independently. All conditions behind an `&&` must be true to get the document. In truth `&&` at the start is only need when nesting or conditions while still requiring a match independently on that field. This is because
+  every property on a mongo query is already implicitly evaluated as logical and clauses.
 
-Understanding this distinction helps in expressing complex conditions for a single property (using `&&`) or separate conditions for different properties (using `||`). This notation offers a way to structure queries with different logical relationships between conditions for various fields.
+Understanding this distinction helps in expressing complex conditions across multiple properties. This notation offers a way to structure queries with different logical relationships between conditions for various fields.
