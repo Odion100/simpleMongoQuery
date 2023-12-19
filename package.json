@@ -1,0 +1,19 @@
+{
+  "name": "simplemongoquery",
+  "version": "1.0.0",
+  "description": "simpleMongoQuery",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Odion100/simpleMongoQuery.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Odion100/simpleMongoQuery/issues"
+  },
+  "homepage": "https://github.com/Odion100/simpleMongoQuery#readme"
+}
