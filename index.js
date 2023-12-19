@@ -54,18 +54,16 @@ module.exports = function simpleMongoQuery(queryObject) {
   function handleAndOrOperators(queryString, propertyName) {
     if (queryString.startsWith("&&")) {
       const conditions = trimFront(queryString.slice(2));
-      andConditions.push(createMongoQueryFromObject({ [propertyName]: conditions }));
+      andConditions.push(simpleMongoQuery({ [propertyName]: conditions }));
     } else if (queryString.startsWith("||")) {
       const conditions = trimFront(queryString.slice(2));
-      orConditions.push(createMongoQueryFromObject({ [propertyName]: conditions }));
+      orConditions.push(simpleMongoQuery({ [propertyName]: conditions }));
     } else if (queryString.includes("&&")) {
       const conditions = queryString.split("&&").map(trimFront);
       const validConditions = conditions.filter((cond) => cond); // Remove empty conditions
       if (validConditions.length) {
         andConditions.push(
-          ...validConditions.map((cond) =>
-            createMongoQueryFromObject({ [propertyName]: cond })
-          )
+          ...validConditions.map((cond) => simpleMongoQuery({ [propertyName]: cond }))
         );
       }
     } else if (queryString.includes("||")) {
@@ -73,9 +71,7 @@ module.exports = function simpleMongoQuery(queryObject) {
       const validConditions = conditions.filter((cond) => cond); // Remove empty conditions
       if (validConditions.length) {
         orConditions.push(
-          ...validConditions.map((cond) =>
-            createMongoQueryFromObject({ [propertyName]: cond })
-          )
+          ...validConditions.map((cond) => simpleMongoQuery({ [propertyName]: cond }))
         );
       }
     }
