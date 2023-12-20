@@ -51,29 +51,49 @@ module.exports = function simpleMongoQuery(queryObject) {
     });
   }
 
+  function nextLogicalClause(queryString) {
+    const andPosition = queryString.indexOf("&&");
+    const orPosition = queryString.indexOf("||");
+    if (andPosition === -1 && orPosition === -1) return undefined;
+    else return andPosition > orPosition ? "&&" : "||";
+  }
   function handleAndOrOperators(queryString, propertyName) {
+    queryString = trimFront(queryString);
+
     if (queryString.startsWith("&&")) {
-      const conditions = trimFront(queryString.slice(2));
-      andConditions.push(simpleMongoQuery({ [propertyName]: conditions }));
+      const conditions = queryString.slice(2);
+      //to avoid unnecessary nesting
+      if (nextLogicalClause(conditions) === "&&") {
+        queryString = conditions;
+      } else {
+        andConditions.push(simpleMongoQuery({ [propertyName]: conditions }));
+        return;
+      }
     } else if (queryString.startsWith("||")) {
-      const conditions = trimFront(queryString.slice(2));
-      orConditions.push(simpleMongoQuery({ [propertyName]: conditions }));
-    } else if (queryString.includes("&&")) {
-      const conditions = queryString.split("&&").map(trimFront);
-      const validConditions = conditions.filter((cond) => cond); // Remove empty conditions
-      if (validConditions.length) {
-        andConditions.push(
-          ...validConditions.map((cond) => simpleMongoQuery({ [propertyName]: cond }))
-        );
+      const conditions = queryString.slice(2);
+      //to avoid unnecessary nesting
+      if (nextLogicalClause(conditions) === "||") {
+        queryString = conditions;
+      } else {
+        orConditions.push(simpleMongoQuery({ [propertyName]: conditions }));
+        return;
       }
-    } else if (queryString.includes("||")) {
-      const conditions = queryString.split("||").map(trimFront);
+    }
+    const symbol = nextLogicalClause(queryString);
+
+    if (symbol === "&&") {
+      const conditions = queryString.split(symbol);
       const validConditions = conditions.filter((cond) => cond); // Remove empty conditions
-      if (validConditions.length) {
-        orConditions.push(
-          ...validConditions.map((cond) => simpleMongoQuery({ [propertyName]: cond }))
-        );
-      }
+
+      andConditions.push(
+        ...validConditions.map((cond) => simpleMongoQuery({ [propertyName]: cond }))
+      );
+    } else {
+      const conditions = queryString.split(symbol);
+      const validConditions = conditions.filter((cond) => cond); // Remove empty conditions
+      orConditions.push(
+        ...validConditions.map((cond) => simpleMongoQuery({ [propertyName]: cond }))
+      );
     }
   }
   for (propertyName in queryObject) {
@@ -98,7 +118,7 @@ module.exports = function simpleMongoQuery(queryObject) {
         query[propertyName] = { $in: values.map(convertIfNumber) };
       } else if (queryString.startsWith("![") && queryString.endsWith("]")) {
         const values = queryString
-          .slice(1, -1)
+          .slice(2, -1)
           .split(",")
           .map((value) => value.trim());
         query[propertyName] = { $nin: values.map(convertIfNumber) };
@@ -118,7 +138,11 @@ module.exports = function simpleMongoQuery(queryObject) {
   }
   if (orConditions.length) {
     if (query.$and) {
-      query.$and.push({ $or: orConditions });
+      if (orConditions.length === 1) {
+        query.$and.push(orConditions[0]);
+      } else {
+        query.$and.push({ $or: orConditions });
+      }
     } else {
       if (!query.$or) query.$or = [];
       query.$or.push(...orConditions);

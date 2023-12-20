@@ -96,7 +96,6 @@ In `simpleMongoQuery`, logic operators are evaluated across properties by defaul
 
 - **`||` at the Start**: Indicates that conditions for a property are connected to other properties. If only one condition behind an `||` operator for all those properties returns true the document will be returned.
 
-- **`&&` at the Start**: Implies that conditions for a property should be evaluated independently. All conditions behind an `&&` must be true to get the document. In truth `&&` at the start is only need when nesting or conditions while still requiring a match independently on that field. This is because
-  every property on a mongo query is already implicitly evaluated as logical and clauses.
+- **`&&` at the Start**: Implies that conditions for a property should be evaluated independently. All conditions behind an `&&` must be true to get the document.
 
 Understanding this distinction helps in expressing complex conditions across multiple properties. This notation offers a way to structure queries with different logical relationships between conditions for various fields.
