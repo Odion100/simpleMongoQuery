@@ -80,19 +80,14 @@ module.exports = function simpleMongoQuery(queryObject) {
       }
     }
     const symbol = nextLogicalClause(queryString);
-
+    const conditions = queryString.split(symbol).filter((cond) => cond);
     if (symbol === "&&") {
-      const conditions = queryString.split(symbol);
-      const validConditions = conditions.filter((cond) => cond); // Remove empty conditions
-
       andConditions.push(
-        ...validConditions.map((cond) => simpleMongoQuery({ [propertyName]: cond }))
+        ...conditions.map((cond) => simpleMongoQuery({ [propertyName]: cond }))
       );
     } else {
-      const conditions = queryString.split(symbol);
-      const validConditions = conditions.filter((cond) => cond); // Remove empty conditions
       orConditions.push(
-        ...validConditions.map((cond) => simpleMongoQuery({ [propertyName]: cond }))
+        ...conditions.map((cond) => simpleMongoQuery({ [propertyName]: cond }))
       );
     }
   }
@@ -109,7 +104,11 @@ module.exports = function simpleMongoQuery(queryObject) {
         const regexPattern = queryString.slice(3); // Extracting the pattern after 'regex='
         query[propertyName] = { $regex: regexPattern };
       } else if (queryString.startsWith("!=")) {
-        query[propertyName] = { $ne: convertIfNumber(queryString.slice(1)) };
+        if (queryString.startsWith("!=undefined"))
+          query[propertyName] = { $exists: true, $ne: undefined };
+        else query[propertyName] = { $ne: convertIfNumber(queryString.slice(1)) };
+      } else if (queryString.startsWith("=undefined")) {
+        query[propertyName] = query[propertyName] = { $exists: false };
       } else if (queryString.startsWith("[") && queryString.endsWith("]")) {
         const values = queryString
           .slice(1, -1)
