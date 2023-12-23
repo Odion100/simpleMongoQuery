@@ -14,19 +14,20 @@ npm install simpleMongoQuery
 
 The `simpleMongoQuery` package interprets a specific query notation within the input object to construct MongoDB queries. Below is a table summarizing the supported string notations:
 
-| Notation                | Description                                                                        |
-| ----------------------- | ---------------------------------------------------------------------------------- |
-| `>`, `<`, `=` `<=` `>=` | Comparison operators indicating greater than, less than, or equal to.              |
-| `:`                     | Range notation indicating inclusive range comparison. Example:`>0:<10` `>=0:<=10`. |
-| `=`                     | Converts the value to a number. Example:`=5`                                       |
-| `!=`                    | Not equal to operator.                                                             |
-| `=undefined`            | Checks if the field does not exist or is undefined.                                |
-| `!=undefined`           | Checks if the field exists.                                                        |
-| `&&`                    | Logical AND operator, used for conjunction of conditions for the same property.    |
-| `\|\|`                  | Logical OR operator, used for disjunction of conditions for the same property.     |
-| `[...]`                 | Square brackets denote inclusion; used with a comma-separated list for `$in`.      |
-| `![...]`                | Square brackets preceded by exclamation; exclusion for `$nin`.                     |
-| `rx=`                   | Prefix for regular expressions.                                                    |
+| Notation                | Description                                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------------------------- |
+| `>`, `<`, `=` `<=` `>=` | Comparison operators indicating greater than, less than, or equal to.                                   |
+| `:`                     | Range notation indicating inclusive range comparison. Example:`>0:<10` `>=0:<=10`.                      |
+| `=`                     | Converts the value to a number. Example:`=5`                                                            |
+| `!=`                    | Not equal operator.                                                                                     |
+| `=undefined`            | Checks if the field does not exist or is undefined.                                                     |
+| `!=undefined`           | Checks if the field exists.                                                                             |
+| `&&`                    | Logical AND operator, used for conjunction of conditions for the same property.                         |
+| `\|\|`                  | Logical OR operator, used for disjunction of conditions for the same property.                          |
+| `[...]`                 | Square brackets denote inclusion; used with a comma-separated list for `$in`.                           |
+| `![...]`                | Square brackets preceded by exclamation; exclusion for `$nin`.                                          |
+| `rx=`                   | Prefix for regular expressions.                                                                         |
+| `fieldName:`            | Used with `&&` or `\|\|` operators to specify conditions in one field for a another field in the query. |
 
 ### Example Usage
 
@@ -38,7 +39,7 @@ simpleMongoQuery({
   team1Score: "|| >50",
   team2Score: "|| >50",
   location: "[Brooklyn, Queens, Bronx]",
-  status: "[ready, callout]",
+  status: "|| [ready, callout] && age: !=undefined",
   level: ">5",
 });
 ```
@@ -52,12 +53,6 @@ simpleMongoQuery({
             "Brooklyn",
             "Queens",
             "Bronx"
-        ]
-    },
-    "status": {
-        "$in": [
-            "ready",
-            "callout"
         ]
     },
     "level": {
@@ -88,6 +83,23 @@ simpleMongoQuery({
             "team2Score": {
                 "$gt": 50
             }
+        },
+        {
+            "$and": [
+                {
+                    "status": {
+                        "$in": [
+                            "ready",
+                            "callout"
+                        ]
+                    }
+                },
+                {
+                    "age": {
+                        "$exists": true
+                    }
+                }
+            ]
         }
     ]
 }

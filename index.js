@@ -17,6 +17,19 @@ module.exports = function simpleMongoQuery(queryObject) {
   const query = {};
   const andConditions = [];
   const orConditions = [];
+  const fieldNames = Object.keys(queryObject);
+  function addFieldNamesFromQuery(queryString, obj) {
+    for (const name of fieldNames) {
+      if (queryString.includes(`${name}:`)) {
+        obj[name] = undefined;
+      }
+    }
+    return obj;
+  }
+  function getQueryFromString(queryString) {
+    const [propName, queryStr] = queryString.split(":").map((val) => val.trim());
+    return { [propName]: queryStr };
+  }
   function handleComparisonOperators(queryString, propertyName) {
     const comparisonOperators = queryString.split(":").map((op) => op.trim());
 
@@ -66,7 +79,8 @@ module.exports = function simpleMongoQuery(queryObject) {
       if (nextLogicalClause(conditions) === "&&") {
         queryString = conditions;
       } else {
-        andConditions.push(simpleMongoQuery({ [propertyName]: conditions }));
+        const query = addFieldNamesFromQuery(queryString, { [propertyName]: conditions });
+        andConditions.push(simpleMongoQuery(query));
         return;
       }
     } else if (queryString.startsWith("||")) {
@@ -75,19 +89,31 @@ module.exports = function simpleMongoQuery(queryObject) {
       if (nextLogicalClause(conditions) === "||") {
         queryString = conditions;
       } else {
-        orConditions.push(simpleMongoQuery({ [propertyName]: conditions }));
+        const query = addFieldNamesFromQuery(queryString, { [propertyName]: conditions });
+        orConditions.push(simpleMongoQuery(query));
         return;
       }
     }
     const symbol = nextLogicalClause(queryString);
-    const conditions = queryString.split(symbol).filter((cond) => cond);
+    const conditions = queryString
+      .split(symbol)
+      .filter((cond) => cond)
+      .map((cond) => cond.trim());
     if (symbol === "&&") {
       andConditions.push(
-        ...conditions.map((cond) => simpleMongoQuery({ [propertyName]: cond }))
+        ...conditions.map((cond) => {
+          if (fieldNames.some((name) => cond.startsWith(`${name}:`))) {
+            return simpleMongoQuery(getQueryFromString(cond));
+          } else return simpleMongoQuery({ [propertyName]: cond });
+        })
       );
     } else {
       orConditions.push(
-        ...conditions.map((cond) => simpleMongoQuery({ [propertyName]: cond }))
+        ...conditions.map((cond) => {
+          if (fieldNames.some((name) => cond.startsWith(`${name}:`))) {
+            return simpleMongoQuery(getQueryFromString(cond));
+          } else return simpleMongoQuery({ [propertyName]: cond });
+        })
       );
     }
   }
@@ -124,9 +150,9 @@ module.exports = function simpleMongoQuery(queryObject) {
       } else if (!query[propertyName]) {
         query[propertyName] = convertIfNumber(queryString);
       }
-    } else if (Array.isArray(queryString)) {
-      query[propertyName] = { $in: queryString };
-    } else {
+    } else if (Array.isArray(propertyValue)) {
+      query[propertyName] = { $in: propertyValue };
+    } else if (propertyValue || propertyValue === false) {
       query[propertyName] = propertyValue;
     }
   }
