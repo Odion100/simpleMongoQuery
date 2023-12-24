@@ -14,34 +14,53 @@ npm install simpleMongoQuery
 
 The `simpleMongoQuery` package interprets a specific query notation within the input object to construct MongoDB queries. Below is a table summarizing the supported string notations:
 
-| Notation                | Description                                                                                             |
-| ----------------------- | ------------------------------------------------------------------------------------------------------- |
-| `>`, `<`, `=` `<=` `>=` | Comparison operators indicating greater than, less than, or equal to.                                   |
-| `:`                     | Range notation indicating inclusive range comparison. Example:`>0:<10` `>=0:<=10`.                      |
-| `=`                     | Converts the value to a number. Example:`=5`                                                            |
-| `!=`                    | Not equal operator.                                                                                     |
-| `=undefined`            | Checks if the field does not exist or is undefined.                                                     |
-| `!=undefined`           | Checks if the field exists.                                                                             |
-| `&&`                    | Logical AND operator, used for conjunction of conditions for the same property.                         |
-| `\|\|`                  | Logical OR operator, used for disjunction of conditions for the same property.                          |
-| `[...]`                 | Square brackets denote inclusion; used with a comma-separated list for `$in`.                           |
-| `![...]`                | Square brackets preceded by exclamation; exclusion for `$nin`.                                          |
-| `rx=`                   | Prefix for regular expressions.                                                                         |
-| `fieldName:`            | Used with `&&` or `\|\|` operators to specify conditions in one field for a another field in the query. |
+| Notation                | Description                                                                                                            |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `>`, `<`, `=` `<=` `>=` | Comparison operators indicating greater than, less than, or equal to.                                                  |
+| `:`                     | Range notation indicating inclusive range comparison. Example:`>0:<10` `>=0:<=10`.                                     |
+| `=`                     | Converts the value to a number. Example:`=5`                                                                           |
+| `!=`                    | Not equal operator.                                                                                                    |
+| `=undefined`            | Checks if the field does not exist or is undefined.                                                                    |
+| `!=undefined`           | Checks if the field exists.                                                                                            |
+| `&&`                    | Logical AND operator, used for conjunction of conditions for the same property.                                        |
+| `\|\|`                  | Logical OR operator, used for disjunction of conditions for the same property.                                         |
+| `[...]`                 | Square brackets denote inclusion; used with a comma-separated list for `$in`.                                          |
+| `![...]`                | Square brackets preceded by exclamation; exclusion for `$nin`.                                                         |
+| `rx=`                   | Prefix for regular expressions.                                                                                        |
+| `fieldName:`            | Used with `&&` or `\|\|` operators to specify conditions in one field for a another field in the query.                |
+| `customFunction(...)`   | Allows the use of custom-defined function notations within queries. Each function should return a MongoDB query object |
 
 ### Example Usage
 
-The `simpleMongoQuery` function is used to illustrate the notation:
+The `simpleMongoQuery` gives you the option to create a custom string-function notation. Define your custom function notation as methods on an object and pass it into the simpleMongoQuery function to return a query interpreter.
 
 ```javascript
-simpleMongoQuery({
+const customFunctions = {
+  coord: (lon, lat, type = "Point", dist = 10000) => {
+    const longitude = parseFloat(lon);
+    const latitude = parseFloat(lat);
+    const distance = parseFloat(dist);
+    return {
+      $near: {
+        $geometry: { type, coordinates: [longitude, latitude] },
+        $maxDistance: distance,
+      },
+    };
+  },
+};
+const interpreter = simpleMongoQuery(customFunctions);
+
+const query = interpreter({
   age: "|| >16:<25 && !=20",
   team1Score: "|| >50",
   team2Score: "|| >50",
   location: "[Brooklyn, Queens, Bronx]",
   status: "|| [ready, callout] && age: !=undefined",
   level: ">5",
+  coordinates: "coord(-73.9707, 40.6625)",
 });
+
+console.log(query);
 ```
 
 #### Results:
@@ -57,6 +76,18 @@ simpleMongoQuery({
     },
     "level": {
         "$gt": 5
+    },
+    "coordinates": {
+        "$near": {
+            "$geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.9707,
+                    40.6625
+                ]
+            },
+            "$maxDistance": 10000
+        }
     },
     "$or": [
         {
