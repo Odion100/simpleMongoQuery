@@ -36,6 +36,7 @@ The `simpleMongoQuery` gives you the option to create a custom string-function n
 
 ```javascript
 const simpleMongoQuery = require("simple-mongo-query");
+
 const customFunctions = {
   coord: (lon, lat, type = "Point", dist = 10000) => {
     const longitude = parseFloat(lon);
