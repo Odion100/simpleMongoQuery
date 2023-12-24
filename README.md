@@ -8,7 +8,7 @@ The `simpleMongoQuery` package simplifies the process of constructing complex Mo
 
 To install `simpleMongoQuery`, use npm:
 
-`npm install simple-mongo-query`
+```npm install simple-mongo-query```
 
 ## Query Notation
 
