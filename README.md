@@ -35,6 +35,7 @@ The `simpleMongoQuery` package interprets a specific query notation within the i
 The `simpleMongoQuery` gives you the option to create a custom string-function notation. Define your custom function notation as methods on an object and pass it into the simpleMongoQuery function to return a query interpreter.
 
 ```javascript
+const simpleMongoQuery = require("simple-mongo-query");
 const customFunctions = {
   coord: (lon, lat, type = "Point", dist = 10000) => {
     const longitude = parseFloat(lon);
