@@ -21,6 +21,8 @@ module.exports = function simpleMongoQuery(fnNotation) {
       if (typeof value !== "string") {
         return value;
       }
+      if (value.startsWith("=true")) return true;
+      if (value.startsWith("=false")) return false;
 
       if (value.startsWith("=")) {
         const parsedValue = value.slice(1).trim();

@@ -16,21 +16,22 @@ npm install simple-mongo-query
 
 The `simpleMongoQuery` package interprets a specific query notation within the input object to construct MongoDB queries. Below is a table summarizing the supported string notations:
 
-| Notation                | Description                                                                                                           |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `>`, `<`, `=` `<=` `>=` | Comparison operators indicating greater than, less than, or equal to.                                                 |
-| `:`                     | Range notation indicating inclusive range comparison. Example:`>0:<10` `>=0:<=10`.                                    |
-| `=`                     | Converts the value to a number. Example:`=5`                                                                          |
-| `!=`                    | Not equal operator.                                                                                                   |
-| `=undefined`            | Checks if the field does not exist or is undefined.                                                                   |
-| `!=undefined`           | Checks if the field exists.                                                                                           |
-| `&&`                    | Logical AND operator, used for conjunction of conditions for the same property.                                       |
-| `\|\|`                  | Logical OR operator, used for disjunction of conditions for the same property.                                        |
-| `[...]`                 | Square brackets denote inclusion; used with a comma-separated list for `$in`.                                         |
-| `![...]`                | Square brackets preceded by exclamation; exclusion for `$nin`.                                                        |
-| `rx=`                   | Prefix for regular expressions.                                                                                       |
-| `fieldName:`            | Used with `&&` or `\|\|` operators to specify conditions in one field for another field in the query.                 |
-| `customFunction(...)`   | Allows the use of custom-defined function notations within queries. Each function should return a MongoDB query value |
+| Notation                  | Description                                                                                                           |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `>`, `<`, `=`, `<=`, `>=` | Comparison operators indicating greater than, less than, or equal to.                                                 |
+| `:`                       | Range notation indicating inclusive range comparison. Example:`>0:<10`, `>=0:<=10`.                                   |
+| `=number`                 | Converts the value to a number. Example:`=5`                                                                          |
+| `=boolean`                | Converts the value to a boolean. Example:`=false`                                                                     |
+| `!=`                      | Not equal operator.                                                                                                   |
+| `=undefined`              | Checks if the field does not exist or is undefined.                                                                   |
+| `!=undefined`             | Checks if the field exists.                                                                                           |
+| `&&`                      | Logical AND operator, used for conjunction of conditions for the same property.                                       |
+| `\|\|`                    | Logical OR operator, used for disjunction of conditions for the same property.                                        |
+| `[...]`                   | Square brackets denote inclusion; used with a comma-separated list for `$in`.                                         |
+| `![...]`                  | Square brackets preceded by exclamation; exclusion for `$nin`.                                                        |
+| `rx=`                     | Prefix for regular expressions.                                                                                       |
+| `fieldName:`              | Used with `&&` or `\|\|` operators to specify conditions in one field for another field in the query.                 |
+| `customFunction(...)`     | Allows the use of custom-defined function notations within queries. Each function should return a MongoDB query value |
 
 ### Example Usage
 
