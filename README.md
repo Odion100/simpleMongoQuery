@@ -30,6 +30,9 @@ The `simpleMongoQuery` package interprets a specific query notation within the i
 | `[...]`                   | Square brackets denote inclusion; used with a comma-separated list for `$in`.                                         |
 | `![...]`                  | Square brackets preceded by exclamation; exclusion for `$nin`.                                                        |
 | `rx=`                     | Prefix for regular expressions.                                                                                       |
+| `rx-i=`                   | Prefix for case-insensitive regular expressions (with "i" option).                                                    |
+| `regex=`                  | Alternative prefix for regular expressions (same as `rx=`).                                                           |
+| `regex-i=`                | Alternative prefix for case-insensitive regular expressions (same as `rx-i=`).                                        |
 | `fieldName:`              | Used with `&&` or `\|\|` operators to specify conditions in one field for another field in the query.                 |
 | `customFunction(...)`     | Allows the use of custom-defined function notations within queries. Each function should return a MongoDB query value |
 
@@ -63,6 +66,7 @@ const query = interpreter({
   status: "|| [ready, callout] && age: !=undefined",
   level: ">5",
   coordinates: "coord(-73.9707, 40.6625)",
+  name: "rx-i=^john", // Case-insensitive regex search for names starting with "john"
 });
 
 console.log(query);
@@ -93,6 +97,10 @@ console.log(query);
             },
             "$maxDistance": 10000
         }
+    },
+    "name": {
+        "$regex": "^john",
+        "$options": "i"
     },
     "$or": [
         {
@@ -139,6 +147,26 @@ console.log(query);
         }
     ]
 }
+```
+
+### Regular Expression Notation
+
+The package supports multiple ways to specify regular expressions:
+
+- **`rx=pattern`**: Creates a case-sensitive regular expression
+- **`rx-i=pattern`**: Creates a case-insensitive regular expression (adds the "i" option)
+- **`regex=pattern`**: Alternative syntax for case-sensitive regular expressions
+- **`regex-i=pattern`**: Alternative syntax for case-insensitive regular expressions
+
+Example:
+
+```javascript
+const query = interpreter({
+  title: "rx=^important", // Matches titles starting with "important" (case-sensitive)
+  description: "rx-i=urgent", // Matches descriptions containing "urgent" (case-insensitive)
+  code: "regex=^[A-Z]{3}\\d{4}$", // Matches codes like "ABC1234" (case-sensitive)
+  category: "regex-i=special|premium", // Matches "special" or "premium" in any case
+});
 ```
 
 ### Notation Usage: `||` vs `&&` at the Start of a String

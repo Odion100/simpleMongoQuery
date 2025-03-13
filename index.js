@@ -153,6 +153,15 @@ module.exports = function simpleMongoQuery(fnNotation) {
         } else if (queryString.startsWith("rx=")) {
           const regexPattern = queryString.slice(3); // Extracting the pattern after 'regex='
           query[propertyName] = { $regex: regexPattern };
+        } else if (queryString.startsWith("rx-i=")) {
+          const regexPattern = queryString.slice(5); // Extracting the pattern after 'regex='
+          query[propertyName] = { $regex: regexPattern, $options: "i" };
+        } else if (queryString.startsWith("regex=")) {
+          const regexPattern = queryString.slice(6); // Extracting the pattern after 'regex='
+          query[propertyName] = { $regex: regexPattern };
+        } else if (queryString.startsWith("regex-i=")) {
+          const regexPattern = queryString.slice(8); // Extracting the pattern after 'regex='
+          query[propertyName] = { $regex: regexPattern, $options: "i" };
         } else if (queryString.startsWith("!=")) {
           if (queryString.startsWith("!=undefined"))
             query[propertyName] = { $exists: true, $ne: undefined };
