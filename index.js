@@ -1,12 +1,12 @@
 const functionRegex = /(\w+)\(([^)]*)\)/;
 
-function evaluateStringFunction(inputString, functionMap) {
+async function evaluateStringFunction(inputString, functionMap) {
   const match = inputString.match(functionRegex);
   if (match) {
     const [, fn, strArgs] = match;
     if (functionMap.hasOwnProperty(fn)) {
       const args = strArgs.split(",").map((arg) => arg.trim());
-      const result = functionMap[fn](...args);
+      const result = await functionMap[fn](...args);
       return result !== undefined ? result : inputString; // Return result if not undefined
     } else {
       return inputString; // Return original string if function not found in functionMap
@@ -16,7 +16,7 @@ function evaluateStringFunction(inputString, functionMap) {
   }
 }
 module.exports = function simpleMongoQuery(fnNotation) {
-  return function interpreter(queryObject) {
+  return async function interpreter(queryObject) {
     function convertIfNumber(value) {
       if (typeof value !== "string") {
         return value;
@@ -181,7 +181,7 @@ module.exports = function simpleMongoQuery(fnNotation) {
             .map((value) => value.trim());
           query[propertyName] = { $nin: values.map(convertIfNumber) };
         } else if (fnNotation && functionRegex.test(queryString)) {
-          query[propertyName] = evaluateStringFunction(queryString, fnNotation);
+          query[propertyName] = await evaluateStringFunction(queryString, fnNotation);
         } else if (!query[propertyName]) {
           query[propertyName] = convertIfNumber(queryString);
         }

@@ -58,7 +58,7 @@ const customFnNotation = {
 };
 const interpreter = simpleMongoQuery(customFnNotation);
 
-const query = interpreter({
+const query = await interpreter({
   age: "|| >16:<25 && !=20",
   team1Score: "|| >50",
   team2Score: "|| >50",
@@ -161,7 +161,7 @@ The package supports multiple ways to specify regular expressions:
 Example:
 
 ```javascript
-const query = interpreter({
+const query = await interpreter({
   title: "rx=^important", // Matches titles starting with "important" (case-sensitive)
   description: "rx-i=urgent", // Matches descriptions containing "urgent" (case-insensitive)
   code: "regex=^[A-Z]{3}\\d{4}$", // Matches codes like "ABC1234" (case-sensitive)
