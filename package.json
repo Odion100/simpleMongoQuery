@@ -1,6 +1,6 @@
 {
   "name": "simple-mongo-query",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "interprets a specific query notation for mongodb",
   "main": "index.js",
   "scripts": {
