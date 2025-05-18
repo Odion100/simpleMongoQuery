@@ -185,10 +185,6 @@ module.exports = function simpleMongoQuery(fnNotation) {
         } else if (!query[propertyName]) {
           query[propertyName] = convertIfNumber(queryString);
         }
-      } else if (Array.isArray(propertyValue)) {
-        if (typeof propertyValue[0] === "object")
-          query[propertyName] = { $elemMatch: { $or: propertyValue } };
-        else query[propertyName] = { $in: propertyValue };
       } else if (propertyValue || propertyValue === false) {
         query[propertyName] = propertyValue;
       }
